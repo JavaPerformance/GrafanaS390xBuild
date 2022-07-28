@@ -1,0 +1,13 @@
+--- scripts/cli/tsconfig.json
++++ scripts/cli/tsconfig.json.fixed
+@@ -2,9 +2,5 @@
+   "compilerOptions": {
+     "module": "commonjs"
+   },
+-  "extends": "../../tsconfig.json",
+-  "ts-node": {
+-    "transpileOnly": true,
+-    "transpiler": "ts-node/transpilers/swc-experimental"
+-  }
++  "extends": "../../tsconfig.json"
+ }

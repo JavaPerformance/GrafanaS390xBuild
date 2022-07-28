@@ -1,0 +1,10 @@
+--- packages/grafana-ui/package.json
++++ packages/grafana-ui/package.json.fixed
+@@ -114,7 +114,6 @@
+     "@storybook/manager-webpack5": "6.4.21",
+     "@storybook/react": "6.4.21",
+     "@storybook/theming": "6.4.21",
+-    "@swc/helpers": "0.3.13",
+     "@testing-library/dom": "8.13.0",
+     "@testing-library/jest-dom": "5.16.4",
+     "@testing-library/react": "12.1.4",

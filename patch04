@@ -1,0 +1,10 @@
+--- packages/grafana-schema/package.json
++++ packages/grafana-schema/package.json.fixed
+@@ -26,7 +26,6 @@
+     "@rollup/plugin-commonjs": "22.0.0",
+     "@rollup/plugin-json": "4.1.0",
+     "@rollup/plugin-node-resolve": "13.3.0",
+-    "@swc/helpers": "0.3.13",
+     "rimraf": "3.0.2",
+     "rollup": "2.74.1",
+     "rollup-plugin-sourcemaps": "0.6.3",
