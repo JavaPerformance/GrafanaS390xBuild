@@ -1,10 +1,10 @@
 FROM alpine:latest as builder
 
-ARG http_proxy=http://xxxx.xxxxxxx.xxx:8080
-ARG https_proxy=http://xxxx.xxxxxxx.xxx:9443
-ARG no_proxy=localhost,127.0.0.1,.xxxxxx.xxx,.xxxxxx.xxx,.xxxxxx.xxx,.xxxxxx.xxx,.xxxxxx.xxx
-ARG node-heap=12228
-ARG corp-cert=your-cert.crt
+ARG http_proxy=http://xxxxxxxxxx:8080
+ARG https_proxy=http://xxxxxxxxxx:9443
+ARG no_proxy=localhost,127.0.0.1,.xxxxxxxxxx,.xxxxxxxxxx,.xxxxxxxxxx,.xxxxxxxxxx.com,.xxxxxxxxxx.com
+ARG node_heap=12228
+ARG corp_cert=your-cert.crt
 
 USER root
 
@@ -14,9 +14,11 @@ ENV HTTP_PROXY $http_proxy
 ENV HTTPS_PROXY $https_proxy
 ENV http_proxy $http_proxy
 ENV https_proxy $https_proxy
+ENV NO_PROXY $no_proxy
+ENV no_proxy $no_proxy
 ENV YARN_HTTP_PROXY $http_proxy
 ENV YARN_HTTPS_PROXY $https_proxy
-ENV NODE_OPTIONS=--max-old-space-size=12228
+ENV NODE_OPTIONS --max-old-space-size=${node_heap}
 
 COPY patch01 /root/patch01
 COPY patch02 /root/patch02
@@ -25,14 +27,14 @@ COPY patch04 /root/patch04
 COPY patch05 /root/patch05
 COPY patch06 /root/patch06
 
-COPY $corp-cert /tmp/corp-cert
+COPY ${corp_cert} /tmp/cert
 
-RUN cat /tmp/corp-cert >> /etc/ssl/certs/ca-certificates.crt
+RUN cat /tmp/cert >> /etc/ssl/certs/ca-certificates.crt
 
 RUN apk --no-cache add ca-certificates \
     && rm -rf /var/cache/apk/*
 
-COPY $corp-cert /usr/local/share/ca-certificates
+COPY ${corp_cert} /usr/local/share/ca-certificates
 
 RUN update-ca-certificates
 
@@ -71,7 +73,7 @@ RUN yarn config set proxy $http_proxy
 RUN yarn config set https-proxy $https_proxy
 
 RUN npm config set proxy $http_proxy
-RUN npm config set https-proxy $http_proxy
+RUN npm config set https-proxy $https_proxy
 
 RUN git config --global http.proxy $http_proxy
 RUN git config --global https.proxy $https_proxy
@@ -106,6 +108,8 @@ RUN patch packages/grafana-ui/package.json ../patch05
 
 RUN patch scripts/cli/tsconfig.json ../patch06
 
+RUN env
+
 RUN yarn install
 
 ENV NODE_ENV production
@@ -119,27 +123,27 @@ RUN make build-go
 # Final stage
 FROM alpine:latest as grafana
 
-ARG http_proxy=http://xxxx.xxxxxxx.xxx:8080
-ARG https_proxy=http://xxxx.xxxxxxx.xxx:9443
-ARG no_proxy=localhost,127.0.0.1,.xxxxxx.xxx,.xxxxxx.xxx,.xxxxxx.xxx,.xxxxxx.xxx,.xxxxxx.xxx
-ARG node-heap=12228
-ARG corp-cert=your-cert.crt
+ARG http_proxy=http://xxxxxxxxxx:8080
+ARG https_proxy=http://xxxxxxxxxx:9443
+ARG no_proxy=localhost,127.0.0.1,.xxxxxxxxxx,.xxxxxxxxxx,.xxxxxxxxxx,.xxxxxxxxxx.com,.xxxxxxxxxx.com
+ARG corp_cert=your-cert.crt
+
 
 ENV HTTP_PROXY $http_proxy
 ENV HTTPS_PROXY $https_proxy
 ENV http_proxy $http_proxy
 ENV https_proxy $https_proxy
+ENV NO_PROXY $no_proxy
+ENV no_proxy $no_proxy
 
+COPY ${corp_cert} /tmp/cert
 
-
-COPY $corp-cert /tmp/corp-cert
-
-RUN cat /tmp/corp-cert >> /etc/ssl/certs/ca-certificates.crt
+RUN cat /tmp/cert >> /etc/ssl/certs/ca-certificates.crt
 
 RUN apk --no-cache add ca-certificates \
     && rm -rf /var/cache/apk/*
 
-COPY $corp-cert /usr/local/share/ca-certificates
+COPY ${corp_cert} /usr/local/share/ca-certificates
 
 RUN update-ca-certificates
 
@@ -147,7 +151,7 @@ RUN apk update
 
 RUN apk upgrade
 
-LABEL maintainer="Paul anderson <Paul_Anderson@xxxxxx.com>"
+LABEL maintainer="You <you@company.com>"
 
 ARG GF_UID="472"
 ARG GF_GID="0"
@@ -163,8 +167,8 @@ ENV PATH="/usr/share/grafana/bin:$PATH" \
 WORKDIR $GF_PATHS_HOME
 
 RUN apk add --no-cache ca-certificates bash tzdata musl-utils
-RUN apk add --no-cache openssl ncurses-libs ncurses-terminfo-base --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main
-RUN apk upgrade ncurses-libs ncurses-terminfo-base --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main
+RUN apk add --no-cache openssl ncurses-libs ncurses-terminfo-base 
+RUN apk upgrade ncurses-libs ncurses-terminfo-base
 RUN apk info -vv | sort
 
 COPY --from=builder /root/grafana/conf ./conf
